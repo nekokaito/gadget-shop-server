@@ -6,7 +6,12 @@ const app = express();
 const port = process.env.PORT || 4000;
 const jwt = require("jsonwebtoken");
 //middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(express.json());
 
 //mongodb
@@ -30,14 +35,10 @@ const dbConnect = async () => {
 
     //get user
 
-    app.get("/user", async (req, res) => {
-      const query = { email: req.body.email };
+    app.get("/user/:email", async (req, res) => {
+      const query = { email: req.params.email };
       const user = await userCollection.findOne(query);
-
-      if (user) {
-        return res.send({ message: "No User Found" });
-      }
-      res.send(result);
+      res.send(user);
     });
 
     //insert user
