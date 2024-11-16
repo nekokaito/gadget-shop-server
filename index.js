@@ -20,6 +20,11 @@ const client = new MongoClient(url, {
   },
 });
 
+const userCollection = client.db("gadgetShop").collection("users");
+const productCollection = client.db("gadgetShop").collection("products");
+
+
+
 const dbConnect = async () => {
   try {
     client.connect();
