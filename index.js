@@ -32,6 +32,18 @@ const verifyJWT = (req, res, next) => {
   })
 }
 
+// verify seller
+
+const verifySeller = async(req,res,next) => {
+  const email = req.decoded.email;
+  const query = {email: email};
+  const user = await userCollection.findOne(query);
+  if (user?.role !== 'seller') {
+    return res.send({message:"Forbidden Access"});
+  }
+  next();
+
+}
 
 
 //mongodb
@@ -84,7 +96,7 @@ const dbConnect = async () => {
 
 //add product
 
-app.post("/add-products", async (req, res) => {
+app.post("/add-products", verifyJWT, verifySeller, async (req, res) => {
   const product = req.body;
   const result = await productCollection.insertOne(product);
   res.send (result);
