@@ -14,6 +14,26 @@ app.use(
 );
 app.use(express.json());
 
+
+//token verification 
+const verifyJWT = (req, res, next) => {
+  const authorization = req.header.authorization;
+
+  if (!authorization) {
+    return res.send({message: "No Token"})
+  }
+  const token = authorization.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_KEY_TOKEN, (err, decoded)=>{
+    if(err) {
+      return res.send({message: "Invalid Token"})
+    }
+    req.decoded = decoded;
+    next();
+  })
+}
+
+
+
 //mongodb
 const url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vrlyepl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -61,6 +81,18 @@ const dbConnect = async () => {
     console.log(error.name, error.message);
   }
 };
+
+//add product
+
+app.post("/add-products", async (req, res) => {
+  const product = req.body;
+  const result = await productCollection.insertOne(product);
+  res.send (result);
+})
+
+
+
+
 dbConnect();
 
 //api
