@@ -14,37 +14,34 @@ app.use(
 );
 app.use(express.json());
 
-
-//token verification 
+//token verification
 const verifyJWT = (req, res, next) => {
-  const authorization = req.header.authorization;
+  const authorization = req.headers.authorization;
 
   if (!authorization) {
-    return res.send({message: "No Token"})
+    return res.send({ message: "No Token" });
   }
-  const token = authorization.split(' ')[1];
-  jwt.verify(token, process.env.ACCESS_KEY_TOKEN, (err, decoded)=>{
-    if(err) {
-      return res.send({message: "Invalid Token"})
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_KEY_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.send({ message: "Invalid Token" });
     }
     req.decoded = decoded;
     next();
-  })
-}
+  });
+};
 
 // verify seller
 
-const verifySeller = async(req,res,next) => {
+const verifySeller = async (req, res, next) => {
   const email = req.decoded.email;
-  const query = {email: email};
+  const query = { email: email };
   const user = await userCollection.findOne(query);
-  if (user?.role !== 'seller') {
-    return res.send({message:"Forbidden Access"});
+  if (user?.role !== "seller") {
+    return res.send({ message: "Forbidden Access" });
   }
   next();
-
-}
-
+};
 
 //mongodb
 const url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vrlyepl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -99,11 +96,8 @@ const dbConnect = async () => {
 app.post("/add-products", verifyJWT, verifySeller, async (req, res) => {
   const product = req.body;
   const result = await productCollection.insertOne(product);
-  res.send (result);
-})
-
-
-
+  res.send(result);
+});
 
 dbConnect();
 
