@@ -99,6 +99,30 @@ app.post("/add-products", verifyJWT, verifySeller, async (req, res) => {
   res.send(result);
 });
 
+// get products
+app.get("/all-products", async (req, res) => {
+  // name searching, sort by price, filter by category, filter by brand
+
+  const { title, sort, category, brand } = req.query;
+
+  const query = {};
+
+  title && (query.title = { $regex: title, $options: "i" });
+
+  category && (query.category = category);
+
+  brand && (query.brand = brand);
+
+  const sortOption = sort === "asc" ? 1 : -1;
+
+  const product = await productCollection
+    .find(query)
+    .sort({ price: sortOption })
+    .toArray();
+
+  res.json(product);
+});
+
 dbConnect();
 
 //api
