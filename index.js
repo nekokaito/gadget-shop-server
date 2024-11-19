@@ -121,7 +121,22 @@ app.get("/all-products", async (req, res) => {
     .sort({ price: sortOption })
     .toArray();
 
-  res.json(product);
+  const totalProducts = await productCollection.countDocuments(query);
+
+  const productInfo = await productCollection.find(
+    {},
+    {
+      projection: { category: 1, brand: 1 },
+    }
+  ).toArray();
+  const categories = [
+    ...new Set(productInfo.map((product) => product.category)),
+  ];
+  const brands = [...new Set(productInfo.map((product) => product.brand))];
+
+  const data = { product, brands, categories, totalProducts };
+
+  res.json(data);
 });
 
 dbConnect();
